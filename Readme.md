@@ -1,4 +1,12 @@
-A *simple* utility to run a pre-configured backup set using rsync. Configuration is read from a file called `config.json` which is formatted as follows:
+A *simple* utility to run a pre-configured backup set using rsync.
+
+Typical usage would look something like this:
+
+Run the "docs" profile:
+
+    $ python ezsync.py docs
+
+Configuration is read from a file called `config.json` which is formatted as follows:
 
     {
         "excludes" : ["<exclude_pattern>", ...],
