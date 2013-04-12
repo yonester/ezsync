@@ -1,0 +1,37 @@
+{
+    "excludes": [
+        "$RECYCLE.BIN",
+        "RECYCLER",
+        "RecoveryBin",
+        "System Volume Information",
+        "Thumbs.db",
+        "desktop.ini",
+        "Desktop.ini",
+        "*.SYS",
+        "msdownld.tmp",
+        "AUTOEXEC.BAT",
+        "AlbumArt*",
+        "autorun"
+    ],
+
+    "flags": "-avi --progress",
+
+    "profiles": {
+        "media": {
+            "source": "~",
+            "target": "/media/usbdrive1/backup/Joe",
+            "pairs": [
+                ["Photos", ""],
+                ["Videos", "", "--exclude=School"]
+            ]
+        },
+        "docs": {
+            "source": "~/Documents",
+            "target": "pi@backupserver:/media/usbdrive1/Documents",
+            "pairs": [
+                ["Work", ""],
+                ["Home", "", "--exclude=*.zip --delete"]
+            ]
+        }
+    }
+}
