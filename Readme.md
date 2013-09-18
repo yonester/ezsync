@@ -13,10 +13,10 @@ Configuration is read from a file called `config.json` which is formatted as fol
         "flags": "<global_flags>",
         "profiles": {
             "<profile_name>": {
-                "source": "<source_dir>",
-                "target": "<target_dir>",
+                "source": "<source_path>",
+                "target": "<target_path>",
                 "pairs": [
-                    ["<source_subdir>", "<target_subdir>", "<optional_flags>"],
+                    ["<source_dir>", "<target_dir>", "<optional_flags>"],
                     ...
                 ]
             },
