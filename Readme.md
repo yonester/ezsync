@@ -2,23 +2,17 @@ A *simple* utility to run a pre-configured backup set using rsync.
 
 Typical usage would look something like this:
 
-Run the "docs" profile:
+Run all profiles:
 
-    $ python ezsync.py docs
+    $ python ezsync.py
 
-Configuration is read from a file called `config.json` which is formatted as follows:
+Run all profiles named "docs":
 
-    {
-        "excludes" : ["<exclude_pattern>", ...],
-        "flags": "<rsync_flags>",
-        "profiles": {
-            "<profile_name>": {
-                "source": "<source_path>",
-                "target": "<target_path>",
-                "excludes": ["<exclude_pattern", ...]
-            },
-            ...
-        }
-    }
+    $ python ezsync.py --profile docs
 
-See the included file as an example.
+Run profiles named "photos" email me when done:
+
+    $ python ezsync.py -p photos -e user@server.com
+
+Configuration is read from `config.json`. See the included file as an example
+of proper configuration parameters.
