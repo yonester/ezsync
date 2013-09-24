@@ -14,24 +14,33 @@
         "autorun"
     ],
 
-    "flags": "-avi --progress",
+    "flags": ["-avi", "--progress"],
 
-    "profiles": {
-        "media": {
-            "source": "~",
-            "target": "/media/usbdrive1/backup/Joe",
-            "pairs": [
-                ["Photos", ""],
-                ["Videos", "", "--exclude=School"]
-            ]
+    "email": {
+        "server": "smtp.server.com",
+        "port": 587,
+        "user": "user@server.com",
+        "password": "password"
+    },
+
+    "profiles": [
+        {
+            "name": "photos",
+            "source": "~/Photos",
+            "target": "/media/usbdrive1/backup/Joe"
         },
-        "docs": {
+
+        {
+            "name": "videos",
+            "source": "~/Videos",
+            "target": "/media/usbdrive1/backup/Joe",
+            "excludes": ["School"]
+        },
+
+        {
+            "name": "docs",
             "source": "~/Documents",
-            "target": "pi@backupserver:/media/usbdrive1/Documents",
-            "pairs": [
-                ["Work", ""],
-                ["Home", "", "--exclude=*.zip --delete"]
-            ]
+            "target": "pi@backupserver:/media/usbdrive1/Documents"
         }
-    }
+    ]
 }

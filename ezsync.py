@@ -1,28 +1,81 @@
 #!/bin/python
 import argparse
-from datetime import datetime
 import json
+import logging
 import os
+import smtplib
 import subprocess
+import time
 
-DEFAULT_CONFIG = 'config.json'
+CONFIG_FILE = 'config.json'
+LOG_FILE = 'ezsync.log'
 
-def parse_args(profiles):
+def parse_args(profile_names):
     parser = argparse.ArgumentParser()
-    parser.add_argument('profile', help='Backup profile', choices=profiles)
+    parser.add_argument('-p', '--profile', help='Backup profile', choices=profile_names)
+    parser.add_argument('-e', '--email', help='Email address to send a report upon completion')
     parser.add_argument('-d', '--dry', help='Dry run', action='store_true')
     return parser.parse_args()
 
+def send_email(login, to, subject='', message=''):
+    """login = {user, password, server, port=587}"""
+    client = smtplib.SMTP('{}:{}'.format(login['server'], login.get('port', 587)))
+    client.starttls()
+    client.login(login['user'], login['password'])
+    client.sendmail(login['user'], to, 'Subject: %s\n\n%s' % (subject, message))
+    client.quit()
+
+def expand_path(path):
+    return os.path.expandvars(os.path.expanduser(path))
+
+def run_rsync(profile, flags):
+    source = expand_path(profile['source'])
+    target = expand_path(profile['target'])
+    excludes = [('--exclude="'+e+'"') for e in profile.get('excludes', [])]
+    command = ['rsync'] + flags + excludes + [source, target]
+    logging.info('Running profile \"%s\"' % profile['name'])
+    starttime = time.time()
+    returncode = subprocess.call(command)
+    endtime = time.time()
+    if returncode != 0:
+        logging.warning('%s\nReturn code: %d' % (' '.join(command), returncode))
+    logging.info('Complete. Elapsed time: %0.2f s', endtime - starttime)
+    return returncode == 0
+
+def init_logging():
+    logging.basicConfig(
+        filename=LOG_FILE,
+        filemode='w',
+        level=logging.DEBUG,
+        format='[ezsync] %(asctime)s %(message)s',
+        datefmt='%m/%d/%Y %I:%M:%S %p')
+
 if __name__ == '__main__':
-    config = json.loads(open(DEFAULT_CONFIG).read())
-    args = parse_args(config['profiles'])
-    flags = config['flags'] + \
-            (' -n ' if args.dry else ' ') + \
-            ' '.join([('--exclude=' + e) for e in config['excludes']])
-    profile = config['profiles'][args.profile]
-    print str(datetime.today()) + ': Running backup set.'
-    for pair in profile['pairs']:
-        os.system('rsync {} {} {}'.format(
-            flags + ((' ' + pair[2]) if len(pair) == 3 else ''),
-            profile['source'] + '/' + pair[0],
-            profile['target'] + '/' + pair[1]))
+    init_logging()
+    config = json.loads(open(CONFIG_FILE).read())
+    args = parse_args([p['name'] for p in config['profiles']])
+
+    # Find the profile specified, otherwise select all of them. Profile name
+    # need not be unique, so collect all matching names.
+    if args.profile:
+        profiles = [p for p in config['profiles'] if p['name'] == args.profile]
+    else:
+        profiles = config['profiles']
+
+    # Build a list of flags.
+    flags = config['flags']
+    if 'excludes' in config:
+        flags += [('--exclude="'+e+'"') for e in config['excludes']]
+    if args.dry:
+        flags += '-n'
+
+    # Now, do it!
+    success = True
+    for profile in profiles:
+        success = run_rsync(profile, flags) and success
+    if args.email:
+        send_email(
+            login=config['email'],
+            to=args.email,
+            subject=('[OK]' if success else '[WARNING]') + ' ezsync complete.',
+            message=open(LOG_FILE).read())

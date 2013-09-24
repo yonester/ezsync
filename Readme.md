@@ -10,26 +10,15 @@ Configuration is read from a file called `config.json` which is formatted as fol
 
     {
         "excludes" : ["<exclude_pattern>", ...],
-        "flags": "<global_flags>",
+        "flags": "<rsync_flags>",
         "profiles": {
             "<profile_name>": {
                 "source": "<source_path>",
                 "target": "<target_path>",
-                "pairs": [
-                    ["<source_dir>", "<target_dir>", "<optional_flags>"],
-                    ...
-                ]
+                "excludes": ["<exclude_pattern", ...]
             },
             ...
         }
     }
 
 See the included file as an example.
-
-Some limitations that could (should) be improved:
-
-* Add flags for each profile. This could be useful when some pairs back up to a remote server and need extra flags to specify a secure shell, for example.
-
-* Add an argument to only run a certain pair in a profile. Would give a bit more flexibility than having to create another profile.
-
-* Maybe get rid of <target_subdir> if there isn't any?
