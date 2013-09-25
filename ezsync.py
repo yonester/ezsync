@@ -19,7 +19,7 @@ def parse_args(profile_names):
 
 def send_email(login, to, subject='', message=''):
     """login = {user, password, server, port=587}"""
-    client = smtplib.SMTP('{}:{}'.format(login['server'], login.get('port', 587)))
+    client = smtplib.SMTP('%s:%s' % (login['server'], login.get('port', 587)))
     client.starttls()
     client.login(login['user'], login['password'])
     client.sendmail(login['user'], to, 'Subject: %s\n\n%s' % (subject, message))
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     if 'excludes' in config:
         flags += [('--exclude="'+e+'"') for e in config['excludes']]
     if args.dry:
-        flags += '-n'
+        flags += ['-n']
 
     # Now, do it!
     success = True
