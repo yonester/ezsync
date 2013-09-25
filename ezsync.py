@@ -31,12 +31,13 @@ def expand_path(path):
 def run_rsync(profile, flags):
     source = expand_path(profile['source'])
     target = expand_path(profile['target'])
-    excludes = [('--exclude="'+e+'"') for e in profile.get('excludes', [])]
+    excludes = [('--exclude="%s"' % e) for e in profile.get('excludes', [])]
     command = ['rsync'] + flags + excludes + [source, target]
     logging.info('Running profile \"%s\"' % profile['name'])
     starttime = time.time()
     returncode = subprocess.call(command)
     endtime = time.time()
+    print ' '.join(command)
     if returncode != 0:
         logging.warning('%s\nReturn code: %d' % (' '.join(command), returncode))
     logging.info('Complete. Elapsed time: %0.2f s', endtime - starttime)
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     # Build a list of flags.
     flags = config['flags']
     if 'excludes' in config:
-        flags += [('--exclude="'+e+'"') for e in config['excludes']]
+        flags += [('--exclude="%s"' % e) for e in config['excludes']]
     if args.dry:
         flags += ['-n']
 
