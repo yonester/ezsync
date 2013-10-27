@@ -10,11 +10,12 @@ import time
 CONFIG_FILE = 'config.json'
 LOG_FILE = 'ezsync.log'
 
-def parse_args(profile_names):
+def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--profile', help='Backup profile', choices=profile_names)
+    parser.add_argument('-p', '--profile', help='Backup profile')
     parser.add_argument('-e', '--email', help='Email address to send a report upon completion')
     parser.add_argument('-d', '--dry', help='Dry run', action='store_true')
+    parser.add_argument('-l', '--list', help='List profiles', action='store_true')
     return parser.parse_args()
 
 def send_email(login, to, subject='', message=''):
@@ -51,10 +52,10 @@ def init_logging():
         format='[ezsync] %(asctime)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
 
-if __name__ == '__main__':
+def main():
     init_logging()
+    args = parse_args()
     config = json.loads(open(CONFIG_FILE).read())
-    args = parse_args([p['name'] for p in config['profiles']])
 
     # Find the profile specified, otherwise select all of them. Profile name
     # need not be unique, so collect all matching names.
@@ -63,6 +64,11 @@ if __name__ == '__main__':
     else:
         profiles = config['profiles']
 
+    # Listing profiles is an exclusive option; nothing else is done.
+    if args.list:
+        print '\n'.join(set([p['name'] for p in profiles]))
+        return
+        
     # Build a list of flags.
     flags = config['flags']
     if 'excludes' in config:
@@ -80,3 +86,6 @@ if __name__ == '__main__':
             to=args.email,
             subject=('[OK]' if success else '[WARNING]') + ' ezsync complete.',
             message=open(LOG_FILE).read())
+    
+if __name__ == '__main__':
+    main()
