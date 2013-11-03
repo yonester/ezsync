@@ -32,7 +32,7 @@ def expand_path(path):
 def run_rsync(profile, flags):
     source = expand_path(profile['source'])
     target = expand_path(profile['target'])
-    excludes = [('--exclude="%s"' % e) for e in profile.get('excludes', [])]
+    excludes = sum([['--exclude', e] for e in profile.get('excludes', [])], [])
     command = ['rsync'] + flags + excludes + [source, target]
     logging.info('Running profile \"%s\"' % profile['name'])
     starttime = time.time()
@@ -72,7 +72,7 @@ def main():
     # Build a list of flags.
     flags = config['flags']
     if 'excludes' in config:
-        flags += [('--exclude="%s"' % e) for e in config['excludes']]
+        map(lambda e: flags.extend(['--exclude', e]), config['excludes'])
     if args.dry:
         flags += ['-n']
 
@@ -86,6 +86,6 @@ def main():
             to=args.email,
             subject=('[OK]' if success else '[WARNING]') + ' ezsync complete.',
             message=open(LOG_FILE).read())
-    
+
 if __name__ == '__main__':
     main()
