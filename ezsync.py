@@ -52,9 +52,15 @@ def init_logging():
         datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def main():
-    init_logging()
     args = parse_args()
     config = json.loads(open(CONFIG_FILE).read())
+
+    # Listing profiles is an exclusive option; nothing else is done.
+    if args.list:
+        print '\n'.join(set([p['name'] for p in config['profiles']]))
+        return
+
+    init_logging()
 
     # Find the profile specified, otherwise select all of them. Profile name
     # need not be unique, so collect all matching names.
@@ -62,11 +68,6 @@ def main():
         profiles = [p for p in config['profiles'] if p['name'] == args.profile]
     else:
         profiles = config['profiles']
-
-    # Listing profiles is an exclusive option; nothing else is done.
-    if args.list:
-        print '\n'.join(set([p['name'] for p in profiles]))
-        return
 
     # Build a list of flags.
     flags = config['flags']
