@@ -8,7 +8,7 @@ import subprocess
 import time
 
 CONFIG_FILE = 'config.json'
-LOG_FILE = 'ezsync.log'
+LOG_FILE = 'log_ezsync.txt'
 
 def parse_args():
     parser = argparse.ArgumentParser()
