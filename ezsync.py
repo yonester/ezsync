@@ -38,7 +38,6 @@ def run_rsync(profile, flags):
     starttime = time.time()
     returncode = subprocess.call(command)
     endtime = time.time()
-    print ' '.join(command)
     if returncode != 0:
         logging.warning('%s\nReturn code: %d' % (' '.join(command), returncode))
     logging.info('Complete. Elapsed time: %0.2f s', endtime - starttime)
@@ -68,7 +67,7 @@ def main():
     if args.list:
         print '\n'.join(set([p['name'] for p in profiles]))
         return
-        
+
     # Build a list of flags.
     flags = config['flags']
     if 'excludes' in config:
